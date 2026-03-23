@@ -1,4 +1,4 @@
-# Web scraping part 1
+# Web scraping part 2
 ## Install required npm packages
 ```
 npm install
