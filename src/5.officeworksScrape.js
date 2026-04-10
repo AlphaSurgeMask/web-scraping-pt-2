@@ -13,6 +13,10 @@ let dataArray2 = [];
 
 await multiPageScraping();
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function multiPageScraping() {
   const browser = await launch({
     headless: true, // Run in headless mode
@@ -74,6 +78,7 @@ async function multiPageScraping() {
 async function specificationsScraping() {
   for (let i = 0; i < urlArray.length; i++) {
     let dataWritten = 0;
+    await sleep(12000);
     const browser = await launch({
       headless: true, // Run in headless mode
       args: [
