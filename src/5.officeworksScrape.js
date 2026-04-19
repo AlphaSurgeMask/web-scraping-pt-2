@@ -14,10 +14,12 @@ let dataArray2 = [];
 await multiPageScraping();
 
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function multiPageScraping() {
+  await sleep(420000 + ((Math.random() * 15) * 60000));
+
   const browser = await launch({
     headless: true, // Run in headless mode
     args: [
@@ -33,9 +35,9 @@ async function multiPageScraping() {
 
       await webPage.goto(
         baseURL +
-          "/shop/officeworks/search?q=monitor&view=grid&page=" +
-          page +
-          "&sortBy=bestmatch",
+        "/shop/officeworks/search?q=monitor&view=grid&page=" +
+        page +
+        "&sortBy=bestmatch",
       );
 
       await new Promise((res) => setTimeout(res, 500));
@@ -78,7 +80,7 @@ async function multiPageScraping() {
 async function specificationsScraping() {
   for (let i = 0; i < urlArray.length; i++) {
     let dataWritten = 0;
-    await sleep(12000);
+    await sleep(420000 + ((Math.random() * 15) * 60000));
     const browser = await launch({
       headless: true, // Run in headless mode
       args: [
@@ -398,30 +400,30 @@ async function specificationsScraping() {
   urlArray = [];
 }
 
-// const parser1 = new j2csv();
-// const csv1 = parser1.parse(dataArray1);
+const parser1 = new j2csv();
+const csv1 = parser1.parse(dataArray1);
 
-// appendFile("../data/monitors1.csv", csv1, function (err) {
-//   if (err) {
-//     console.log(
-//       "Some error occured - file either not saved or corrupted file saved.",
-//     );
-//   } else {
-//     console.log("Saved file successfully!");
-//   }
-// });
+appendFile("../data/monitors1.csv", csv1, function (err) {
+  if (err) {
+    console.log(
+      "Some error occured - file either not saved or corrupted file saved.",
+    );
+  } else {
+    console.log("Saved file successfully!");
+  }
+});
 
-// const parser2 = new j2csv();
-// const csv2 = parser2.parse(dataArray2);
+const parser2 = new j2csv();
+const csv2 = parser2.parse(dataArray2);
 
-// appendFile("../data/monitors2.csv", csv2, function (err) {
-//   if (err) {
-//     console.log(
-//       "Some error occured - file either not saved or corrupted file saved.",
-//     );
-//   } else {
-//     console.log("Saved file successfully!");
-//   }
-// });
+appendFile("../data/monitors2.csv", csv2, function (err) {
+  if (err) {
+    console.log(
+      "Some error occured - file either not saved or corrupted file saved.",
+    );
+  } else {
+    console.log("Saved file successfully!");
+  }
+});
 
 console.log("\n\n" + "Complete!" + "\n\n");
