@@ -7,6 +7,7 @@ console.log("Launching browser...");
 
 const baseURL = "https://www.officeworks.com.au";
 
+let page = 1;
 let urlArray = [];
 let dataArray1 = [];
 let dataArray2 = [];
@@ -18,7 +19,11 @@ function sleep(ms) {
 }
 
 async function multiPageScraping() {
-  await sleep(420000 + ((Math.random() * 15) * 60000));
+  if (Math.floor(Math.random * 4) != 0) {
+    let sleepTime = 120000 + ((Math.random() * 3) * 60000);
+    console.log("I'm going to wait for " + (sleepTime / 60000) + " minutes.");
+    await sleep(sleepTime);
+  }
 
   const browser = await launch({
     headless: true, // Run in headless mode
@@ -28,7 +33,6 @@ async function multiPageScraping() {
     ],
   });
 
-  let page = 1;
   while (true) {
     try {
       const webPage = await browser.newPage();
@@ -80,7 +84,14 @@ async function multiPageScraping() {
 async function specificationsScraping() {
   for (let i = 0; i < urlArray.length; i++) {
     let dataWritten = 0;
-    await sleep(420000 + ((Math.random() * 15) * 60000));
+    console.log(
+      "Getting data for item " + (i + 1) + " using URL: " + urlArray[i] + " on page " + page,
+    );
+    if (Math.floor(Math.random * 4) != 0) {
+      let sleepTime = 120000 + ((Math.random() * 3) * 60000);
+      console.log("I'm going to wait for " + (sleepTime / 60000) + " minutes.");
+      await sleep(sleepTime);
+    }
     const browser = await launch({
       headless: true, // Run in headless mode
       args: [
@@ -91,10 +102,6 @@ async function specificationsScraping() {
     });
 
     try {
-      console.log(
-        "Getting data for item " + (i + 1) + " using URL: " + urlArray[i],
-      );
-
       const item = await browser.newPage();
       await item.goto(urlArray[i]);
 
@@ -105,13 +112,9 @@ async function specificationsScraping() {
 
       let card = ".styles__ProductContentWrapper-sc-i7hfje-4";
 
-      if ($(card).text() == "") {
-        throw "no info found";
-      }
+      let info = ".iKnnPD";
 
-      let info = ".ifqtOF";
-
-      if ($(info).text() == "") {
+      if ($(card).text() == "" || $(info).text() == "") {
         throw "no info found";
       }
 
@@ -121,7 +124,7 @@ async function specificationsScraping() {
 
           const name = item.find(".sc-dIHSXr").text();
 
-          const price = item.find(".sc-BKyeB").text();
+          const price = item.find(".sc-hsPFbj").text();
 
           const brand = item.find(".style__Link-sc-1jfp2c6-4").text();
 
