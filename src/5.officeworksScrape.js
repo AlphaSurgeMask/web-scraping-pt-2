@@ -1,6 +1,6 @@
 import { launch } from "puppeteer";
 import { load } from "cheerio";
-import { appendFile } from "fs";
+import { writeFile } from "fs";
 import { Parser as j2csv } from "json2csv";
 
 console.log("Launching browser...");
@@ -15,13 +15,13 @@ let dataArray2 = [];
 await multiPageScraping();
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function multiPageScraping() {
   if (Math.floor(Math.random * 4) != 0) {
-    let sleepTime = 120000 + ((Math.random() * 3) * 60000);
-    console.log("I'm going to wait for " + (sleepTime / 60000) + " minutes.");
+    let sleepTime = 120000 + Math.random() * 5 * 60000;
+    console.log("I'm going to wait for " + sleepTime / 60000 + " minutes.");
     await sleep(sleepTime);
   }
 
@@ -39,9 +39,9 @@ async function multiPageScraping() {
 
       await webPage.goto(
         baseURL +
-        "/shop/officeworks/search?q=monitor&view=grid&page=" +
-        page +
-        "&sortBy=bestmatch",
+          "/shop/officeworks/search?q=monitor&view=grid&page=" +
+          page +
+          "&sortBy=bestmatch",
       );
 
       await new Promise((res) => setTimeout(res, 500));
@@ -72,6 +72,34 @@ async function multiPageScraping() {
       console.log("Performing scrap on item pages...");
       console.log("Using the follow URLs: " + urlArray);
       await specificationsScraping();
+
+      writeFile(
+        "../data/save1-page" + page + ".json",
+        dataArray1,
+        function (err) {
+          if (err) {
+            console.log(
+              "Some error occured - file either not saved or corrupted file saved.",
+            );
+          } else {
+            console.log("Saved file successfully!");
+          }
+        },
+      );
+
+      writeFile(
+        "../data/save2-page" + page + ".json",
+        dataArray2,
+        function (err) {
+          if (err) {
+            console.log(
+              "Some error occured - file either not saved or corrupted file saved.",
+            );
+          } else {
+            console.log("Saved file successfully!");
+          }
+        },
+      );
     } catch (error) {
       console.error(error.message);
       await browser.close();
@@ -85,11 +113,16 @@ async function specificationsScraping() {
   for (let i = 0; i < urlArray.length; i++) {
     let dataWritten = 0;
     console.log(
-      "Getting data for item " + (i + 1) + " using URL: " + urlArray[i] + " on page " + page,
+      "Getting data for item " +
+        (i + 1) +
+        " using URL: " +
+        urlArray[i] +
+        " on page " +
+        page,
     );
     if (Math.floor(Math.random * 4) != 0) {
-      let sleepTime = 120000 + ((Math.random() * 3) * 60000);
-      console.log("I'm going to wait for " + (sleepTime / 60000) + " minutes.");
+      let sleepTime = 120000 + Math.random() * 5 * 60000;
+      console.log("I'm going to wait for " + sleepTime / 60000 + " minutes.");
       await sleep(sleepTime);
     }
     const browser = await launch({
@@ -97,7 +130,6 @@ async function specificationsScraping() {
       args: [
         "--no-sandbox", // Necessary for containerized environments like Codespaces
         "--disable-setuid-sandbox", // Additional sandbox-related option
-
       ],
     });
 
@@ -406,7 +438,7 @@ async function specificationsScraping() {
 const parser1 = new j2csv();
 const csv1 = parser1.parse(dataArray1);
 
-appendFile("../data/monitors1.csv", csv1, function (err) {
+writeFile("../data/monitors1.csv", csv1, function (err) {
   if (err) {
     console.log(
       "Some error occured - file either not saved or corrupted file saved.",
@@ -419,7 +451,7 @@ appendFile("../data/monitors1.csv", csv1, function (err) {
 const parser2 = new j2csv();
 const csv2 = parser2.parse(dataArray2);
 
-appendFile("../data/monitors2.csv", csv2, function (err) {
+writeFile("../data/monitors2.csv", csv2, function (err) {
   if (err) {
     console.log(
       "Some error occured - file either not saved or corrupted file saved.",
