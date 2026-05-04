@@ -24,21 +24,16 @@ sudo apt update
 sudo apt upgrade
 
 sudo apt install -y \
-  wget \
-  ca-certificates \
-  fonts-liberation \
-  libappindicator3-1 \
-  libasound2t64 \
-  libatk-bridge2.0-0 \
-  libatk1.0-0 \
-  libcups2 \
-  libdbus-1-3 \
-  libgdk-pixbuf2.0-0 \
   libnspr4 \
-  libnss3 \
-  libx11-xcb1 \
+  libnss3 \ 
+  libatk1.0-0 \
+  libatk-bridge2.0-0t64 \
+  libcups2 \
+  libxkbcommon-x11-0 \
+  libasound2t64 \
+  libgbm-dev \
   libxcomposite1 \
   libxdamage1 \
-  libxrandr2 \
-  xdg-utils
+  libxfixes3 \
+  libxrandr2
 ```
