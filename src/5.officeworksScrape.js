@@ -31,7 +31,7 @@ function saveData(location, data) {
   writeFile(location, data, function (err) {
     if (err) {
       console.error(
-        "Some error occured - file either not saved or corrupted file saved."
+        "Some error occured - file either not saved or corrupted file saved.",
       );
       console.error(err);
     } else {
@@ -45,10 +45,7 @@ async function multiPageScraping() {
 
   const browser = await launch({
     headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox"
-    ]
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   while (true) {
@@ -63,7 +60,7 @@ async function multiPageScraping() {
         baseURL +
           "/shop/officeworks/search?q=monitor&view=grid&page=" +
           page +
-          "&sortBy=bestmatch"
+          "&sortBy=bestmatch",
       );
 
       await new Promise((res) => setTimeout(res, 500));
@@ -89,7 +86,6 @@ async function multiPageScraping() {
       });
 
       console.log("Got data for page " + page);
-      page++;
 
       console.log("Performing scrap on item pages...");
       console.log("Using the follow URLs: " + urlArray);
@@ -97,12 +93,14 @@ async function multiPageScraping() {
 
       saveData(
         "../data/save1-page" + page + ".json",
-        JSON.stringify(dataArray1)
+        JSON.stringify(dataArray1),
       );
       saveData(
         "../data/save2-page" + page + ".json",
-        JSON.stringify(dataArray2)
+        JSON.stringify(dataArray2),
       );
+      
+      page++;
     } catch (e) {
       console.error(e);
       await browser.close();
@@ -117,21 +115,18 @@ async function specificationsScraping() {
     let dataWritten = 0;
     console.log(
       "Getting data for item " +
-        (i + 1) +
+        i++ +
         " using URL: " +
         urlArray[i] +
         " on page " +
-        page
+        page--,
     );
 
     await sleep(2 * 60000, 5 * 60000, 4);
 
     const browser = await launch({
       headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox"
-      ]
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     try {
@@ -171,12 +166,12 @@ async function specificationsScraping() {
             name: name,
             price: price,
             brand: brand,
-            code: code
+            code: code,
           };
         })
         .toArray();
 
-      dataWritten = dataWritten + 1;
+      dataWritten++;
 
       const htmlInfoElement = $(info)
         .map(function (e, product) {
@@ -360,7 +355,7 @@ async function specificationsScraping() {
             HDMIPorts: HDMIPorts,
             USBCPorts: USBCPorts,
             powerConsumption: powerConsumption,
-            speakers: speakers
+            speakers: speakers,
           };
         })
         .toArray();
@@ -380,7 +375,7 @@ async function specificationsScraping() {
         name: "",
         price: "",
         brand: "",
-        code: ""
+        code: "",
       };
 
       const htmlInfoElement = {
@@ -419,7 +414,7 @@ async function specificationsScraping() {
         HDMIPorts: "",
         USBCPorts: "",
         powerConsumption: "",
-        speakers: ""
+        speakers: "",
       };
 
       if (dataWritten != 1 && dataWritten != 3) {
