@@ -99,7 +99,7 @@ async function multiPageScraping() {
         "../data/save2-page" + page + ".json",
         JSON.stringify(dataArray2),
       );
-      
+
       page++;
     } catch (e) {
       console.error(e);
@@ -115,11 +115,11 @@ async function specificationsScraping() {
     let dataWritten = 0;
     console.log(
       "Getting data for item " +
-        i++ +
+        (i + 1) +
         " using URL: " +
         urlArray[i] +
         " on page " +
-        page--,
+        page,
     );
 
     await sleep(2 * 60000, 5 * 60000, 4);
@@ -440,3 +440,4 @@ const csv2 = parser2.parse(dataArray2);
 saveData("../data/monitors2.csv", csv2);
 
 console.log("\n\n" + "Complete!" + "\n\n");
+console.log("Took ~" + performance.now() / 60000 + " minutes");

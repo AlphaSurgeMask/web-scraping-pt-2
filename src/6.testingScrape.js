@@ -5,24 +5,43 @@ import { Parser as j2csv } from "json2csv";
 
 console.log("Launching browser...");
 
-let page = 47;
+let page = 1;
+const maxPage = 2;
+
 let urlArray = [];
 let dataArray1 = [];
 let dataArray2 = [];
 
+const parser1 = new j2csv();
+const parser2 = new j2csv();
+
 await multiPageScraping();
+
+function saveData(location, data) {
+  writeFile(location, data, function (err) {
+    if (err) {
+      console.error(
+        "Some error occured - file either not saved or corrupted file saved.",
+      );
+      console.error(err);
+    } else {
+      console.log("Saved file successfully!");
+    }
+  });
+}
 
 async function multiPageScraping() {
   const browser = await launch({
-    headless: true, // Run in headless mode
-    args: [
-      "--no-sandbox", // Necessary for containerized environments like Codespaces
-      "--disable-setuid-sandbox", // Additional sandbox-related option
-    ],
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   while (true) {
     try {
+      if (page > maxPage) {
+        throw "Reached max pages";
+      }
+
       const webPage = await browser.newPage();
 
       await webPage.goto("https://scrapeme.live/shop/page/" + page + "/");
@@ -50,39 +69,21 @@ async function multiPageScraping() {
       });
 
       console.log("Got data for page " + page);
-      page++;
 
       console.log("Performing scrap on item pages...");
       console.log("Using the follow URLs: " + urlArray);
       await specificationsScraping();
 
-      writeFile(
-        "../data/test1-page" + page + ".json",
+      saveData(
+        "../data/save1-page" + page + ".json",
         JSON.stringify(dataArray1),
-        function (err) {
-          if (err) {
-            console.log(
-              "Some error occured - file either not saved or corrupted file saved.",
-            );
-          } else {
-            console.log("Saved file successfully!");
-          }
-        },
+      );
+      saveData(
+        "../data/save2-page" + page + ".json",
+        JSON.stringify(dataArray2),
       );
 
-      writeFile(
-        "../data/test2-page" + page + ".json",
-        JSON.stringify(dataArray2),
-        function (err) {
-          if (err) {
-            console.log(
-              "Some error occured - file either not saved or corrupted file saved.",
-            );
-          } else {
-            console.log("Saved file successfully!");
-          }
-        },
-      );
+      page++;
     } catch (e) {
       console.error(e);
       await browser.close();
@@ -103,12 +104,10 @@ async function specificationsScraping() {
         " on page " +
         page,
     );
+
     const browser = await launch({
-      headless: true, // Run in headless mode
-      args: [
-        "--no-sandbox", // Necessary for containerized environments like Codespaces
-        "--disable-setuid-sandbox", // Additional sandbox-related option
-      ],
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     try {
@@ -147,7 +146,7 @@ async function specificationsScraping() {
         })
         .toArray();
 
-      dataWritten = dataWritten + 1;
+      dataWritten++;
 
       const htmlInfoElement = $(info)
         .map(function (e, product) {
@@ -206,31 +205,13 @@ async function specificationsScraping() {
   urlArray = [];
 }
 
-const parser1 = new j2csv();
 const csv1 = parser1.parse(dataArray1);
 
-writeFile("../data/test1.csv", csv1, function (err) {
-  if (err) {
-    console.log(
-      "Some error occured - file either not saved or corrupted file saved.",
-    );
-  } else {
-    console.log("Saved file successfully!");
-  }
-});
+saveData("../data/pokemon1.csv", csv1);
 
-const parser2 = new j2csv();
 const csv2 = parser2.parse(dataArray2);
 
-writeFile("../data/test2.csv", csv2, function (err) {
-  if (err) {
-    console.log(
-      "Some error occured - file either not saved or corrupted file saved.",
-    );
-  } else {
-    console.log("Saved file successfully!");
-  }
-});
+saveData("../data/pokemon2.csv", csv2);
 
 console.log("\n\n" + "Complete!" + "\n\n");
-console.log("Took ~" + performance.now() / 60000 + "minutes");
+console.log("Took ~" + performance.now() / 60000 + " minutes");
