@@ -8,40 +8,62 @@ console.log("Launching browser...");
 const baseURL = "https://www.officeworks.com.au";
 
 let page = 1;
+const maxPage = 5;
+
 let urlArray = [];
 let dataArray1 = [];
 let dataArray2 = [];
 
+const parser1 = new j2csv();
+const parser2 = new j2csv();
+
 await multiPageScraping();
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep(min, max, passChance) {
+  if (Math.floor(Math.random * passChance) != 0) {
+    let sleepTime = min + Math.random() * max;
+    console.log("I'm going to wait for " + sleepTime / 60000 + " minutes.");
+    return new Promise((resolve) => setTimeout(resolve, sleepTime));
+  }
+}
+
+function saveData(location, data) {
+  writeFile(location, data, function (err) {
+    if (err) {
+      console.error(
+        "Some error occured - file either not saved or corrupted file saved."
+      );
+      console.error(err);
+    } else {
+      console.log("Saved file successfully!");
+    }
+  });
 }
 
 async function multiPageScraping() {
-  if (Math.floor(Math.random * 4) != 0) {
-    let sleepTime = 120000 + Math.random() * 5 * 60000;
-    console.log("I'm going to wait for " + sleepTime / 60000 + " minutes.");
-    await sleep(sleepTime);
-  }
+  await sleep(2 * 60000, 5 * 60000, 4);
 
   const browser = await launch({
-    headless: true, // Run in headless mode
+    headless: true,
     args: [
-      "--no-sandbox", // Necessary for containerized environments like Codespaces
-      "--disable-setuid-sandbox", // Additional sandbox-related option
-    ],
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+    ]
   });
 
   while (true) {
     try {
+      if (page > maxPage) {
+        throw "Reached max pages";
+      }
+
       const webPage = await browser.newPage();
 
       await webPage.goto(
         baseURL +
           "/shop/officeworks/search?q=monitor&view=grid&page=" +
           page +
-          "&sortBy=bestmatch",
+          "&sortBy=bestmatch"
       );
 
       await new Promise((res) => setTimeout(res, 500));
@@ -53,7 +75,7 @@ async function multiPageScraping() {
       let card = ".styles__ProductInfoWrapper-sc-1k8cpym-3";
 
       if ($(card).text() == "" || $(".fJshrd").text() == "") {
-        throw "no more pages";
+        throw "No more pages";
       }
 
       $(card).map(function (e, product) {
@@ -73,35 +95,16 @@ async function multiPageScraping() {
       console.log("Using the follow URLs: " + urlArray);
       await specificationsScraping();
 
-      writeFile(
+      saveData(
         "../data/save1-page" + page + ".json",
-        dataArray1,
-        function (err) {
-          if (err) {
-            console.log(
-              "Some error occured - file either not saved or corrupted file saved.",
-            );
-          } else {
-            console.log("Saved file successfully!");
-          }
-        },
+        JSON.stringify(dataArray1)
       );
-
-      writeFile(
+      saveData(
         "../data/save2-page" + page + ".json",
-        dataArray2,
-        function (err) {
-          if (err) {
-            console.log(
-              "Some error occured - file either not saved or corrupted file saved.",
-            );
-          } else {
-            console.log("Saved file successfully!");
-          }
-        },
+        JSON.stringify(dataArray2)
       );
-    } catch (error) {
-      console.error(error.message);
+    } catch (e) {
+      console.error(e);
       await browser.close();
 
       break;
@@ -118,19 +121,17 @@ async function specificationsScraping() {
         " using URL: " +
         urlArray[i] +
         " on page " +
-        page,
+        page
     );
-    if (Math.floor(Math.random * 4) != 0) {
-      let sleepTime = 120000 + Math.random() * 5 * 60000;
-      console.log("I'm going to wait for " + sleepTime / 60000 + " minutes.");
-      await sleep(sleepTime);
-    }
+
+    await sleep(2 * 60000, 5 * 60000, 4);
+
     const browser = await launch({
-      headless: true, // Run in headless mode
+      headless: true,
       args: [
-        "--no-sandbox", // Necessary for containerized environments like Codespaces
-        "--disable-setuid-sandbox", // Additional sandbox-related option
-      ],
+        "--no-sandbox",
+        "--disable-setuid-sandbox"
+      ]
     });
 
     try {
@@ -170,7 +171,7 @@ async function specificationsScraping() {
             name: name,
             price: price,
             brand: brand,
-            code: code,
+            code: code
           };
         })
         .toArray();
@@ -359,7 +360,7 @@ async function specificationsScraping() {
             HDMIPorts: HDMIPorts,
             USBCPorts: USBCPorts,
             powerConsumption: powerConsumption,
-            speakers: speakers,
+            speakers: speakers
           };
         })
         .toArray();
@@ -372,14 +373,14 @@ async function specificationsScraping() {
       console.log(dataArray1);
       console.log(dataArray2);
     } catch (e) {
-      console.log(e);
+      console.error(e);
 
       const htmlCardElement = {
         url: urlArray[i],
         name: "",
         price: "",
         brand: "",
-        code: "",
+        code: ""
       };
 
       const htmlInfoElement = {
@@ -418,7 +419,7 @@ async function specificationsScraping() {
         HDMIPorts: "",
         USBCPorts: "",
         powerConsumption: "",
-        speakers: "",
+        speakers: ""
       };
 
       if (dataWritten != 1 && dataWritten != 3) {
@@ -435,30 +436,12 @@ async function specificationsScraping() {
   urlArray = [];
 }
 
-const parser1 = new j2csv();
 const csv1 = parser1.parse(dataArray1);
 
-writeFile("../data/monitors1.csv", csv1, function (err) {
-  if (err) {
-    console.log(
-      "Some error occured - file either not saved or corrupted file saved.",
-    );
-  } else {
-    console.log("Saved file successfully!");
-  }
-});
+saveData("../data/monitors1.csv", csv1);
 
-const parser2 = new j2csv();
 const csv2 = parser2.parse(dataArray2);
 
-writeFile("../data/monitors2.csv", csv2, function (err) {
-  if (err) {
-    console.log(
-      "Some error occured - file either not saved or corrupted file saved.",
-    );
-  } else {
-    console.log("Saved file successfully!");
-  }
-});
+saveData("../data/monitors2.csv", csv2);
 
 console.log("\n\n" + "Complete!" + "\n\n");
